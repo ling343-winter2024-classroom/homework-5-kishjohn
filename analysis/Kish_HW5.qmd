@@ -4,23 +4,20 @@ author: "John Kish"
 format: html
 ---
 
-## Quarto
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+```{r setup}
+# install.packages("lme4", type = "source")
+#| warning: false
+library(tidyverse)
 
-## Running Code
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
-```{r}
-1 + 1
 ```
 
-You can add options to executable code like this 
+## Prediction in the maze
 
-```{r}
-#| echo: false
-2 * 2
-```
+background stuff. The hypothesis was...
 
-The `echo: false` option disables the printing of code (only output is displayed).
+## Codebook?Data Dictionary
+
+These are the variables 
