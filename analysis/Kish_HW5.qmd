@@ -1,23 +1,402 @@
 ---
 title: "Kish_HW5"
 author: "John Kish"
-format: html
+format:
+  html:
+    embed-resources: true
+editor_options: 
+  chunk_output_type: inline
 ---
 
 
 ```{r setup}
-# install.packages("lme4", type = "source")
-#| warning: false
+#| code-fold: TRUE
+#| code-summary: "Resources Used"
+#| warning: FALSE
 library(tidyverse)
+library(gt)
+# optional additional resources:
+# install.packages("lme4", type = "source")
+
+
+```
+
+
+
+## The Maze of "Prediction in the Maze"
+
+Linguistics is hard. What is easy — reading a fabulous walkthrough of lingusitic's finest work. 
+
+Today, we'll be navigating through the "maze" of lingusitic mazes —
+
+More specifically, we'll be looking at how mazes were used in "Prediction in the Maze" (Husband et al. 2022)
+to highlight how linguistics can shed a light on human behavior.
+<br>
+<br>
+
+## Brief Background of Linguistic Ideas
+
+Many Linguistic theories include the idea that people predict upcoming "linguistic content" (e.g. words and articles like "a" and "an")
+
+Linguistic content that are "expected" are called "high-cloze"
+
+<br>
+
+For example,
+
+
+"The day was breezy so the boy went outside to fly .... [1. a kite] [2. an airplane]"
+
+
+| 1. "kite" would be the expected content (in this case, a noun) and therefore "high-cloze"
+<br>
+
+
+## The Goal of "Prediction in the Maze"
+
+| Previous studies have used a combination of either
+
+| 1. The brain (how does the brain respond to real and expected stimuli?)
+
+| 2. The language (phonotactic constrains = "how 'permissible' are related sounds?")
+|    to support theories that we make predictions in language 
+
+
+<br>
+So, "Prediction in the Maze" takes a different route: the human (and its behavior)
+
+|          What human behavior involves dealing with linguistics you might ask?
+
+|          You guessed it: reading!
+<br>
+<br>
+
+"Prediction in the Maze" has participants read through 80 sentences
+where the context of the sentences were either deemed expected or unexpected —
+all while keeping track of how long it took them to read
+
+The "maze" in the study is the user finding and selecting the correct/expected word 
+in order continue and advance to one of the other 80 sentences
+
+If they are incorrect/pick the unexpected word, they would still need to select the right option to continue —
+but the time that it takes will to add to the time of their response.
+
+<br>
+
+## What "Prediction in the Maze" Found
+
+"Prediction in the Maze" found insights related to four aspects: 
+
+
+| 1. Comprehension accuracy: "Did they correctly, overall, did they predict the expected word?"
+
+| 2. Reading measures: "What are we Measuring?"
+
+|      We're primarily interested in the article and noun (and whether it is expected)
+|      but we'll also look at the three words preceeding the article, and three words preceeding the noun
+
+|      Example:
+|          W1 W2 W3 Article Noun W4 W5 W6
+|          Where W = Word
+
+| 3. Error rates: "how often did they predict the expected word? (for each of the reading measures)"
+
+| 4. Response times: "How many milliseconds did it take for them to respond?"
+
+
+How did we get to these insights? Data was collected data from 24 variables to combine to inform us about those insights.
+They are listed below for convenience.
+
+
+```{r 24 Variables}
+#| code-fold: TRUE
+#| code-summary: "Resources Used"
+#| warning: FALSE
+
+## Setup Variables
+# Index: each index is a unique user
+# Time: the time information received
+# Counter: unique counter for each participant, unclear what its purpose is
+# Hash: unique identifier for each participant
+# Owner: is the participant logged in as the owner of the experiment?
+# Controller: what kind of task is it? 
+#  A Form? A Maze?
+# Item: which sentence number
+# Element: element "1" given when controller is a question, "0" otherwise
+
+## Participant Form Variables
+# FieldName: the response/value to be gathered from the user in the forum
+# Value: the request/value gathered from the user in the forum
+
+
+
+## Study Variables
+# Type: (a complex variable that contains other variables in it, including:)
+#  1 Delong (this is the type of stimuli that it is)
+#  2 the item group number
+#  3 whether it was expected or unnexpected
+#
+# Group: Each unique question belongs to its own sentence group — 
+# So it's easier to compare among users the group of questions rather than a collection of those questions 
+#
+# WordNum: Each word gets its own unique number. Example: "the" is 0
+# Word: what the word in question was
+# Alt: what the alternative to the word in question was
+# WordOn: was the word on the left (0) or right (1)?
+# CorrWord: did they choose the correct word?
+# RT: reading time, how long did they take to click it?
+# Sent: the sentence in question, for reference
+# TotalTime: how long it took total (reading time, accounting for getting it wrong the first try)
+
+
+## Comprehension Questions/Variables (to check for understanding/paying attention)
+# Question: the comprehension question
+# Resp: the answer to the comprehension question
+# Acc: the accuracy of the comprehension question
+# RespRT: the response time it took to answer the comprehension question
+
+```
+
+<br>
+
+
+## Bringing in the Relevant Resources
+
+Feel free to read along with all the code below as we look into what the study found
+alternatively, you can download some of the files from [insert github.com link here]
+and follow along yourself!
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "Sourcing Resources"
+#| warning: FALSE
+
+
+here::i_am("analysis/Kish_HW5.qmd")
+library(here)
+
+data <- read.csv(here("data/delong maze 40Ss.csv"), 
+              header = 1, sep = ",", comment.char = "#", strip.white = T,
+              col.names = c("Index","Time","Counter","Hash","Owner","Controller","Item","Element","Type","Group","FieldName","Value","WordNum","Word","Alt","WordOn","CorrWord","RT","Sent","TotalTime","Question","Resp","Acc","RespRT"));
+
+data_removed_part <- filter(data, Hash != '9dAvrH0+R6a0U5adPzZSyA')
+
+```
+
+
+## Descriptive Statistics
+
+The goal of the study was to shine a light on human behavior in relation to linguistics,
+but in order to do that we need to look at how the humans... behaved in the study
+so, let's see how they faired! How many humans were there?
+
+After accounting for the removed participant, 
+
+there were approximately `r data_participants_number <- n_distinct(data_removed_part$Hash)` `r data_participants_number` participants.
+
+who went through a combined, whopping `r count(filter(data_removed_part, Type != 'intro' & Type != 'practice'))` button clicks / "turns" in the maze!
+
+these participants' ages are described below. Looks pretty standard, right?
+```{r}
+#| code-fold: TRUE
+#| code-summary: "Demographic Data"
+#| warning: FALSE
+
+# selecting portion of the data dealing with demographics
+demo <- data |> filter(Controller == "Form")
+demo <- select(demo, Index:Value)
+demo2 <- demo |> mutate(across(where(is.character), as.factor))
+
+
+
+# getting the descriptive statistics of the demographics
+testdemo <- demo2 |> filter(FieldName == "age") |> summarize(median_age = mean(as.numeric(as.character(Value))), 
+                                               minimum_age = min(as.numeric(as.character(Value))), 
+                                               maximum_age = max(as.numeric(as.character(Value))),
+                                               standard_deviation_age = sd(as.numeric(as.character(Value))))
+demo_tbl <- round(testdemo, 2) 
+
+
+
+# making the describe statistics into a table
+demo_tbl |> gt() |>
+  opt_row_striping() |> 
+  opt_stylize(style = 4, color = "red")
 
 
 
 ```
 
-## Prediction in the maze
 
-background stuff. The hypothesis was...
+```{r}
+#| code-fold: TRUE
+#| code-summary: "Making The Data Easier to Work With"
+#| warning: FALSE
+#| 
+# Remember! rt -> reaction time
 
-## Codebook?Data Dictionary
+## Remove unwanted participant, item and expand data (make more columns from existing column)
+df_rt <- data_removed_part |> 
+  filter(Controller == "Maze" & Type != "prac") |> 
+  select(1:20, -11, -12) |> 
+  separate(col = Type, 
+           into = c("experiment", "item", "expected", "position", "pos", 
+                    "cloze", "art.cloze", "n.cloze"), sep = "\\.", convert = TRUE, fill = "right") |> 
+  #the sep argument separates between columns
+  #the convert argument turnes string "NA"s to be converted to NAs.
+  #the fill argument fills the mssing values on the right
+  mutate(WordNum = as.numeric(WordNum),
+         Acc = as.numeric(as.character(recode(CorrWord, yes = "1", no = "0"))),
+         n.cloze.scale =  scale(n.cloze), 
+  # scale function is just a generic func that scales something
+         art.cloze.scale = scale(art.cloze)) |> 
+  mutate(across(where(is.character), as.factor)) |> 
+  filter(item != 29)
+  # item 29 removed across all part, deemed bad
+```
 
-These are the variables 
+
+Once we have an understanding of who we're dealing with here,
+and cleaned up the data enough to know what we're looking at —
+we can start looking at how the participants faired in this study.
+
+<br>
+
+How did they fair in their reaction times? (as a whole and individually)?
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "Reaction Time for Each Participant Individually, and Total"
+#| warning: FALSE
+
+df_rt$rgn.fix <- df_rt$WordNum - df_rt$pos + 1
+# this relationship - between the word number and its position
+
+
+
+
+df_rt |> filter(rgn.fix > -4 & rgn.fix < 5) |>
+         filter(Acc == 1) |>
+         summarize(n=n(), rt=mean(RT), rt.sd=sd(RT), med=median(RT), rt.min=min(RT), rt.max=max(RT)) |> gt() |>
+         opt_row_striping() |> 
+         opt_stylize(style = 4, color = "red")
+ 
+
+# same as above, but for each participant
+df_rt |> filter(rgn.fix > -4 & rgn.fix < 5) |>
+         filter(Acc == 1) |> 
+         group_by(Hash) |>
+         summarize(n=n(), rt=mean(RT), rt.sd=sd(RT), med=median(RT), rt.min=min(RT), rt.max=max(RT)) |>
+         mutate(keep = rt > mean(rt)-2*sd(rt) | rt < mean(rt)+2*sd(rt)) |> as.data.frame() |> gt() |>
+         opt_row_striping() |> 
+         opt_stylize(style = 4, color = "red")
+
+         
+     
+
+```
+
+
+hmmmm... it looks like some reaction times were really short (8 msec) and some were really long (10415 msec)
+
+but I don't know about you, but that's too much data for me to see any more patterns in just by looking
+at a table!
+
+Let's graph the reading times, then, across all participants, between the expected and unexpected stimuli
+
+But first, for this, we are going to split the sentences they were looking at into individual pieces, so 
+we can pinpoint exactly where the reading times were higher and lower
+
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "Splitting-up the Parts of The Sentence"
+#| warning: FALSE
+
+
+# create a new dataframe from the reaction times where we focus only where they answered the comprehension Q correctly and take into account the relationship - between the word number and its position (rgn.fix)
+
+rgn.rt.raw <- df_rt |> filter(rgn.fix > -4 & rgn.fix < 5) |>
+                       filter(Acc == 1) |>
+                       group_by(rgn.fix, expected) |>
+                       summarize(n=n(), subj=length(unique(Hash)), rt=mean(RT), sd=sd(RT), stderr=sd/sqrt(subj)) |> as.data.frame()
+
+
+
+
+# remember how the study broke the parts of the sentence into pieces!
+rgn.rt.raw$rgn <- as.factor(recode(rgn.rt.raw$rgn.fix, "-3"="CW-3", "-2"="CW-2", "-1"="CW-1", "0"="art", "1"="n","2"="CW+1", "3"="CW+2", "4"="CW+3"))
+
+
+rgn.rt.raw$rgn <- ordered(rgn.rt.raw$rgn, levels = c("CW-3", "CW-2", "CW-1", "art", "n", "CW+1", "CW+2", "CW+3"))
+#
+
+
+
+rgn.rt.raw |> gt() |>
+  opt_row_striping() |> 
+  opt_stylize(style = 4, color = "red")
+
+
+```
+
+Cool, now we can get graphin'
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "A Fancy Graph for the Reading Time of Each Participant Individually Total"
+#| warning: FALSE
+
+
+
+# Now graph! simple enough
+ggplot(rgn.rt.raw, aes(x=rgn, y=rt, group=expected, shape=expected)) +
+  geom_line(stat = "identity", position=position_dodge(width=.3)) +
+  geom_point(stat = "identity", position=position_dodge(width=.3), size=3) +
+  geom_errorbar(aes(ymin = rt-stderr, ymax = rt+stderr), width=.15, position=position_dodge(width=.3)) +
+  scale_shape_manual(name="", labels=c("Expected", "Unexpected"), values = c(21,19)) + 
+  xlab("Word") + ylab("Reading Time (msec)") + 
+  theme_bw()
+
+
+
+```
+
+Well it sure looks like unexpected words (especially nouns and to a lesser extent the article before the noun and the word after the noun) take longer to read than their expected counterparts!
+
+<br>
+
+If you're wondering how each participant varied between the expected and unexpected parts —
+we've got you covered.
+
+```{r}
+#| code-fold: TRUE
+#| code-summary: "A Fancier Graph for the Reading Time of Each Participant Individually"
+#| warning: FALSE
+
+
+
+df_rt |> 
+  filter(rgn.fix == 0) |> 
+  group_by(Hash, expected) |> 
+  summarize(RT = mean(RT, na.rm = TRUE)) |> 
+  ggplot(aes(x=expected, y=RT, shape = expected, group = Hash, color = Hash)) +
+  geom_line() +
+  geom_point(stat = "identity", alpha = .8, size = 2) +
+  labs(x = "Condition", y = "Reading Time (msec)") + 
+  theme_minimal() +
+  theme(legend.position = "none") 
+
+
+
+```
+
+Hmmm.. it looks like there is a significant increase in reading time when the condition is unexpected to me—
+but it's hard to tell without using statistics for now
+
+
+<br>
+
+But I'll leave that fun to you!
+
+
